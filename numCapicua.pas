@@ -2,7 +2,7 @@
 Program numCapicua;
 
 Var 
-  num, reversedNum, temp, digit: Integer;
+  num, reversedNum, tem2p, digit: Integer;
 
 Begin
   Write('Introduce un numero: ');

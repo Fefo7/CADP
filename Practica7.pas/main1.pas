@@ -1,141 +1,173 @@
 
 Program main1;
 
+Const 
+  maxRang = 5;
 
 Type 
-  CodGen = 1..5;
+  rango = 1..maxRang;
+  vecContador = array[rango] Of integer;
   persona = Record
     dni: Integer;
-    apellido: String;
-    nombre: string;
-    edad: Integer;
-    CodigoGenero: CodGen;
+    apellido: Integer;
+    nombre: integer;
+    edad: 1..100;
+    codGenero: rango;
   End;
-  listPersona = ^nodo;
+  listActores = ^nodo;
   nodo = Record
     elem: persona;
-    sig: listPersona;
+    sig: listActores;
   End;
-  CantCode = array[CodGen] Of Integer;
-
-Procedure CargarPersona(Var p:persona);
-Begin
-  ReadLn(p.dni);
-  ReadLn(p.apellido);
-  ReadLn(p.nombre);
-  ReadLn(p.edad);
-  ReadLn(p.CodigoGenero);
-End;
-Procedure CrearNodo(Var listaPerso: listPersona; p:persona);
+Procedure inicializarVector(Var v: vecContador);
 
 Var 
-  aux: listPersona;
+  i: integer;
 Begin
-  New(aux);
-  aux^.elem := p;
-  aux^.sig := Nil;
-  If listaPerso= Nil Then listaPerso := aux
-  Else
+  For i:=1 To maxRang Do
     Begin
-      aux^.sig := listaPerso;
-      listaPerso := aux;
+      v[i] := 0;
     End;
 End;
-Function MasParesQueImpares(dni: Integer): Boolean;
+Procedure leerPersona(Var p: persona);
+Begin
+  WriteLn('ingrese el dni');
+  ReadLn(p.dni);
+  WriteLn('ingrese el nombre');
+  ReadLn(p.nombre);
+  WriteLn('ingrese el apellido');
+  ReadLn(p.apellido);
+  WriteLn('ingrese el edad');
+  ReadLn(p.edad);
+  WriteLn('ingrese el codeGenero');
+  ReadLn(p.codGenero);
+
+End;
+
+Procedure agregarAdelante(Var l: listActores; p:persona);
 
 Var 
-  dig: Integer;
-  Ispar: Integer;
-  IsImpar: Integer;
+  nue: listActores;
 Begin
-  Ispar := 0;
-  IsImpar := 0;
+  new(nue);
+  nue^.elem := p;
+  nue^.sig := l;
+  l := nue;
+End;
+
+Procedure cargarActores(Var l:listActores; Var v:vecContador);
+
+Var 
+  p: persona;
+Begin
+  Repeat
+    leerPersona(p);
+    agregarAdelante(l,p);
+    v[p.codGenero] := v[p.codGenero] + 1;
+  Until p.dni = 33555444;
+End;
+Procedure cantidadDniPares(Var cantPersonas: integer; dni:Integer);
+
+Var 
+  digit,par, impar: integer;
+Begin
+  par := 0;
+  impar := 0;
   While dni <> 0 Do
     Begin
-      dig := dni Mod 10;
-      If (dig Mod 2) = 0 Then
-        Begin
-          Ispar := Ispar+1;
-        End
-      Else
-        Begin
-          IsImpar := IsImpar+1;
-        End;
+      digit := dni Mod 10;
       dni := dni Div 10;
+      If ((digit Mod 2) = 0)Then
+        par := par+1
+      Else
+        impar := impar+1;
     End;
-  If Ispar>IsImpar Then
-    MasParesQueImpares := True
-  Else
-    MasParesQueImpares := False;
+  If par > impar Then
+    cantPersonas := cantPersonas +1;
 End;
-Procedure ContarCodigosGenero(Var codesGen:CantCode; code:Integer);
-Begin
-  Case code Of 
-    1: codesGen[1] := codesGen[1]+1;
-    2: codesGen[2] := codesGen[2]+1;
-    3: codesGen[3] := codesGen[3]+1;
-    4: codesGen[4] := codesGen[4]+1;
-    5: codesGen[5] := codesGen[5]+1;
-    Else
-      WriteLn('codigo no permitido');
-  End;
-End;
-
-Procedure eliminarPerso(Var listaPerso:listPersona; dni:integer);
+Procedure buscarMaximos(v:vecContador; Var codG,codG2 : rango; Var max,max2:
+                        Integer);
 
 Var 
-  act: listPersona;
-  ant: listPersona;
+  i: integer;
 Begin
-  act := listaPerso;
-  ant := listaPerso;
-  While (act <> Nil) And (act^.elem.dni <> dni) Do
+  For i:=1 To maxRang Do
+    Begin
+      If (v[i]> max) Then
+        Begin
+          max2 := max;
+          codG2 := codG;
+          max := v[i];
+          codG := i;
+        End
+      Else
+        If v[i] > max2 Then
+          Begin
+            max2 := v[i];
+            codG2 := i;
+          End;
+    End;
+End;
+
+Procedure procesarDatos(l:listActores;v:vecContador);
+
+Var 
+  cantPersonas: integer;
+  codG,codG2: rango;
+  max,max2: integer;
+Begin
+  cantPersonas := 0;
+  max := -1;
+  While l <> Nil Do
+    Begin
+      cantidadDniPares(cantPersonas, l^.elem.dni);
+      buscarMaximos(v,codG,codG2,max,max2);
+      l := l^.sig;
+    End;
+  WriteLn('cantidad de personas con mas numero pares: ', cantPersonas);
+  WriteLn('codigos de genero maximos: ', codG, codG2);
+
+End;
+
+Procedure eliminarNodo(Var l:listActores; act: listActores;ant: listActores);
+Begin
+  If (act = l) Then
+    l := l^.sig
+  Else
+    ant^.sig := act^.sig;
+  Dispose(act);
+End;
+
+Procedure eliminarDato(Var l: listActores);
+
+Var 
+  dni: Integer;
+  act,ant: listActores;
+Begin
+  WriteLn('ingrese el dni que quiera eliminar');
+  ReadLn(dni);
+  act := l;
+  While (act<> Nil) And (act^.elem.dni <> dni ) Do
     Begin
       ant := act;
       act := act^.sig;
     End;
-  If (act=ant) Then
+  If ((act <> Nil) And (act^.elem.dni = dni))Then
     Begin
-      listaPerso := act^.sig;
-      Dispose(act);
+      eliminarNodo(l,act,ant);
     End
   Else
-    Begin
-      If act^.elem.dni = dni Then
-        Begin
-          ant^.sig := act^.sig;
-          Dispose(act);
-        End
-      Else
-        Begin
-          WriteLn('no se encontro el dni a borrar');
-        End;
-    End;
+    WriteLn('no se encontro el dni');
 End;
 
-Procedure CargarListaPersona(Var listaPerso:listPersona; p:persona; Var
-                             CantPersonasDniPar: Integer; Var codesGen: CantCode
-);
-Begin
-  codesGen[1] := 0;
-  codesGen[2] := 0;
-  codesGen[3] := 0;
-  codesGen[4] := 0;
-  codesGen[5] := 0;
-  Repeat
-    CargarPersona(p);
-    CrearNodo(listaPerso, p);
-    If MasParesQueImpares(p.dni) Then CantPersonasDniPar := CantPersonasDniPar+1
-    ;
-    ContarCodigosGenero(codesGen,p.CodigoGenero);
-  Until p.dni =33555444
-End;
 
 Var 
-  listaPerso: listPersona;
-  p: persona;
-  codesGen: CantCode;
-
+  l: listActores;
+  v: vecContador;
 Begin
-  listaPerso := Nil;
+  l := Nil;
+  inicializarVector(v);
+  cargarActores(l,v);
+  procesarDatos(l,v);
+  eliminarDato(l);
 End.
