@@ -1,20 +1,33 @@
 
 Program test2;
 
-
-Procedure prueba (Var x: Integer);
-
 Var 
-  x: integer;
+  c: integer;
+
+Procedure prueba (Var b,a: Integer);
 Begin
-  x := 5;
+  b := 10;
+  WriteLn(b);
+  WriteLn(a);
+
+  While (b>0) Do
+    Begin
+      a := a+b;
+      b := b-2;
+      c := c-b;
+    End;
+  WriteLn('a= ', a, 'b= ', b,'c= ', c);
 End;
 
 Var 
-  n1: integer;
+  a,b: integer;
 Begin
-  n1 := 3;
-  prueba(n1);
-  WriteLn(n1);
+  b := 80;
+  c := 30;
+  a := 0;
+  WriteLn('a= ', a, 'b= ', b,'c= ', c);
+  prueba(a,b);
+  WriteLn('a= ', a, 'b= ', b,'c= ', c);
+
 
 End.
