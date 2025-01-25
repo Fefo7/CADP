@@ -68,7 +68,7 @@ begin
   repeat
     cargarCliente(c);
     agregarAdelante(l,c);
-  until  c.dni = 1122;
+  until  c.codCli = 1122;
 end;
 
 procedure imprimirCliente(c:cliente; monto: real);
@@ -138,6 +138,7 @@ var
   l:listCliente;
   codC:integer;
 Begin
+  l:=Nil;
   cargarTabla(t);
   CargarLista(l);
   ProcesarDatos(l,t);
