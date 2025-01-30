@@ -1,99 +1,103 @@
+{ Una remisería dispone de información acerca de los viajes realizados durante el mes de mayo de 2020. De
+ cada viaje se conoce: número de viaje, código de auto, dirección de origen, dirección de destino y
+ kilómetros recorridos durante el viaje. Esta información se encuentra ordenada por código de auto y para
+ un mismocódigo de auto pueden existir 1 o más viajes. Se pide:
+ a. Informar los dos códigos de auto que más kilómetros recorrieron.
+ b. Generar una lista nueva con los viajes de más de 5 kilómetros recorridos, ordenada por número de
+ viaje}
+
 
 Program main3;
+type
+  viaje = record
+      numVieje: integer;
+      codAuto: integer;
+      direDest: String[20];
+      direOrig: String[20];
+      kmRecorrido: real;
+    end;
+    listViaje = ^nodo;
+    nodo = record
+      elem: viaje;
+      sig: listViaje;
+    end;
 
-Type 
-  viaje = Record
-    numViaje: Integer;
-    codeAuto: integer;
-    direOrigen: String;
-    direDestino: string;
-    kmRecorridos: real;
-  End;
-  listViajes = ^nodo;
-  nodo = Record
-    elem: viaje;
-    sig: listViajes;
-  End;
+procedure CargarListaViajes(var l:listViaje);
+begin
+  //se dispone
+end;
+procedure CalcularMaximos(codAutoAct:integer;kmXAuto : real;
+    var codMax, codMax2: integer;var kmMax,kmMax2: real);
+begin
+    if(kmXAuto > kmMax)then
+    begin
+      kmMax2:= kmMax;
+      codMax2:= codMax;
+      codMax:= codAutoAct;
+      kmMax:= kmXAuto;
+    end
+    else
+      begin
+        if (kmXAuto>kmMax2 ) then
+        begin
+            kmMax2 := kmXAuto;
+            codMax2 := codAutoAct;
+        end;
+      end;
+end;
 
+procedure CargarListaOrdenada(var lnue:listViaje; v:viaje ); 
+var
+  ant,act, nue:listViaje; 
+begin
+    New(nue);
+    nue^.elem:= v;
+    ant:= lnue;
+    act:= lnue;
+    while (act<> nil) and (act^.elem.numVieje > v.numVieje) do
+    begin
+      ant:= act;
+      act:=act^.sig;
+    end;
+    if(act = ant) then  
+      lnue:= nue
+    else
+      ant^.sig:= nue;
+    nue^.sig:=act;
+        
+end;
 
-Procedure BuscarMaximos(code: Integer; totalKmRecorrido:Real;
-                        Var maximo,maximo2:real;Var code1,code2:Integer);
-Begin
-  If totalKmRecorrido > maximo Then
-    Begin
-      maximo2 := maximo;
-      code2 := code1;
-      maximo := totalKmRecorrido;
-      code1 := code;
-    End
-  Else
-    Begin
-      If totalKmRecorrido > maximo2 Then
-        Begin
-          maximo2 := totalKmRecorrido;
-          code2 := code;
-        End;
-    End;
-End;
-Procedure insertarOrdenado( v:viaje; Var Viajes5km:listViajes);
+procedure ProcesarDatos(l: listViaje; var lnue:listViaje );
+var 
+  codAutoAct: integer;
+  kmXAuto: real;
+  codMax,codMax2: integer;
+  kmMax,kmMax2: real;
+begin
+  kmMax:= -1;
+  while l<>nil do
+  begin
+      codAutoAct:= l^.elem.codAuto;
+      kmXAuto:= 0;
+      while ((l<>nil) and  (l^.elem.codAuto = codAutoAct))do
+      begin
+          kmXAuto:=kmXAuto + l^.elem.kmRecorrido;
+          if(l^.elem.kmRecorrido> 5) then
+              CargarListaOrdenada(lnue, l^.elem);
+          l := l^.sig;
+      end;
+      CalcularMaximos(codAutoAct,kmXAuto, codMax, codMax2, kmMax,kmMax2);
+  end;
+  WriteLn('2 codigos con mas kilometros recorridos: ',codMax, 'cod2: ',codMax2 );
 
-Var 
-  aux,ant,act: listViajes;
-Begin
-  New(aux);
-  aux.elem := v;
-  aux^.sig := Nil;
-  If Viajes5km=Nil Then Viajes5km := aux
-  Else
-    Begin
-      While act<>Nil And aux^.elem.numViaje > act^.elem.numViaje Do
-        Begin
-          ant := act;
-          act := act^.sig;
-        End;
-      If act = Viajes5km Then
-        Begin
-          aux^.sig := Viajes5km;
-          Viajes5km := aux;
-        End
-      Else
-        Begin
-          ant^.sig := aux;
-          aux^.sig := act;
-        End;
-    End;
+end;
+var
+  l,listNue:listViaje;
+begin
+  l:=nil;
+  listNue:= nil;
+  CargarListaViajes(l);
+  ProcesarDatos(l,listNue);
 
+end.
 
-End;
-
-Var 
-  listaViajes,aux,Viajes5km: listViajes;
-  Viajes5km,ult: listViajes;
-
-  maximo, maximo2,totalKmRecorrido: real;
-  code1, code2: Integer;
-  codeAux: Integer;
-  v: viaje;
-Begin
-  maximo := -1;
-  listaViajes := Nil;
-  Viajes5km := Nil;
-  CargarListaOrdenada(listaViajes,viaje);
-  aux: listaViajes;
-  While aux<>Nil Do
-    Begin
-      codeAux := aux^.elem.codeAuto;
-      totalKmRecorrido := 0;
-      While (aux<>Nil) And (codeAux = aux^.elem.codeAuto) Do
-        Begin
-          totalKmRecorrido := totalKmRecorrido+aux^.elem.kmRecorridos;
-          aux := aux^.sig;
-          If aux^.elem.kmRecorridos > 5 Then
-            Begin
-              insertarOrdenado(aux^.elem,Viajes5km);
-            End;
-        End;
-      BuscarMaximos(aux^.elem.codeAuto,totalKmRecorrido,maximo,maximo2,code1,
-                    code2);
-    End;
-End.
