@@ -1,4 +1,12 @@
 
+
+
+
+
+
+
+
+
 {Una empresa dispone de una estructura de datos con las ventas de su
 comercio. De cada venta se conoce número de venta, cantidad de
 productos y tipo de pago (efectivo o tarjeta). Se pide implementar
@@ -6,10 +14,12 @@ un programa que genere una segunda estructura con las ventas cuya
 cantidad de productos tenga más dígitos pares que impares. En la
 estructura generada deben quedar almacenadas las ventas de tipo de 
 pago efectivo antes que las de tipo de pago con tarjeta.}
+
 Program _06_02_24;
 
 Type 
-  rango = 1..2; // 1 (efectivo) 2 (tarjeta)
+  rango = 1..2;
+  // 1 (efectivo) 2 (tarjeta)
   venta = Record
     numero: integer;
     cantProd: Integer;
@@ -50,6 +60,18 @@ Begin
   MasPares := (pares > impares);
 End;
 
+Procedure AgregarAdelante(Var ventasPares,ult: listVenta; v:venta);
+
+Var 
+  aux: listVenta;
+Begin
+  new(aux);
+  aux^.elem := v;
+  aux^.sig := l;
+  If (ult = Nil) Then
+    ult := aux;
+  l := aux;
+End;
 Procedure AgregarAlfinal(Var l, ult: listVenta; v: venta);
 
 Var 
@@ -68,18 +90,17 @@ End;
 Procedure ProcesarDatos(ventas: listVenta; Var ventasPares: listVenta);
 
 Var 
-  ultEfectivo, ultTarjeta: listVenta;
+  ult, ultTarjeta: listVenta;
 Begin
-  ultEfectivo := Nil;
-  ultTarjeta := Nil;
+  ult := Nil;
   While ventas <> Nil Do
     Begin
       If MasPares(ventas^.elem.cantProd) Then
         Begin
           If ventas^.elem.tipoPago = 1 Then
-            AgregarAlfinal(ventasPares, ultEfectivo, ventas^.elem)
+            AgregarAdelante(ventasPares, ult, ventas^.elem)
           Else
-            AgregarAlfinal(ventasPares, ultTarjeta, ventas^.elem);
+            AgregarAlfinal(ventasPares, ult, ventas^.elem);
         End;
       ventas := ventas^.sig;
     End;
